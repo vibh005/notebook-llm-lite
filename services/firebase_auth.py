@@ -8,28 +8,34 @@ load_dotenv()
 
 
 def initialize_firebase():
-    """Initialize Firebase Admin SDK once."""
+    """Initialize Firebase Admin SDK locally or on Streamlit Cloud."""
+    import json
+    import streamlit as st
+
     if firebase_admin._apps:
         return
 
-    credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if "firebase_service_account" in st.secrets:
+        service_account_info = dict(st.secrets["firebase_service_account"])
+        credential = credentials.Certificate(service_account_info)
+    else:
+        credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
-    if not credentials_path:
-        raise RuntimeError(
-            "GOOGLE_APPLICATION_CREDENTIALS is missing from .env"
-        )
+        if not credentials_path:
+            raise RuntimeError(
+                "Firebase credentials are missing."
+            )
 
-    if not os.path.isabs(credentials_path):
-        credentials_path = os.path.join(
-            os.getcwd(), credentials_path
-        )
+        if not os.path.isabs(credentials_path):
+            credentials_path = os.path.join(os.getcwd(), credentials_path)
 
-    if not os.path.exists(credentials_path):
-        raise FileNotFoundError(
-            f"Firebase credentials file not found: {credentials_path}"
-        )
+        if not os.path.exists(credentials_path):
+            raise FileNotFoundError(
+                f"Firebase credentials file not found: {credentials_path}"
+            )
 
-    credential = credentials.Certificate(credentials_path)
+        credential = credentials.Certificate(credentials_path)
+
     firebase_admin.initialize_app(credential)
 
 
