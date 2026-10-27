@@ -3,8 +3,7 @@ import os
 import pymupdf
 import streamlit as st
 from dotenv import load_dotenv
-from streamlit_firebase_auth import FirebaseAuth
-
+from custom_auth import FirebaseAuth
 from services.answer_generator import generate_answer
 from services.document_pipeline import process_pdf
 from services.firebase_auth import verify_firebase_token
